@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUYA 遊戲總覽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!--
+=========================================================
+  要新增或修改遊戲，只改下面這段 GAMES 清單，其餘都不用動。
+  QR 由網址即時生成，改網址 QR 會自動跟著換。
+=========================================================
+-->
+<script>
+/* ── 遊戲清單 ─────────────────────────────
+   name      遊戲名稱
+   tagline   一句話定性（對外會顯示）
+   color     卡片代表色，換一個色碼即可
+   type      遊戲類型
+   player    玩家端網址，對外模式也會顯示；留空代表尚未部署
+   links     後台／控制端連結，僅對內模式顯示；加 group 可分區顯示
+   tech      技術一句話（僅對內模式顯示）
+   notes     提醒事項，開頭加 '!' 會標成警示色（僅對內模式顯示）
+───────────────────────────────────── */
+const GAMES = [
+  {
+    name: '股票大富翁',
+    tagline: '模擬當沖，五回合結算總資產',
+    color: '#F5A524',
+    type: '交易策略 × 舞台互動',
+    player: 'https://kuyainfo.github.io/stock-game/stock_player.html',
+    links: [
+      { label: '行情主機', url: 'https://kuyainfo.github.io/stock-game/stock_market.html' },
+      { label: '排行榜', url: 'https://kuyainfo.github.io/stock-game/stock_rank.html' }
+    ],
+    tech: 'Firebase RTDB kuya-stock-game（Blaze / asia-southeast1）',
+    notes: [
+      '!資料庫規則 2026-08-20 到期，之後全面讀寫失敗，須先延長',
+      '尚未做正式安全規則，僅時效性開放',
+      '玩家端需持久連線，人數等同連線數',
+      'repo 內無 index.html，連結一律要帶完整檔名'
+    ]
+  },
+  {
+    name: '糖果屋',
+    tagline: '滑動連線消除，分數越高糖果屋越豪華',
+    color: '#FF6FA5',
+    type: '消除型',
+    player: 'https://kuyainfo.github.io/candy-game/candy_house_game_v4_21.html',
+    links: [
+      { label: '排行榜', url: 'https://kuyainfo.github.io/candy-game/candy_leaderboard.html' }
+    ],
+    tech: 'Firebase RTDB kuya-candy-game（Spark）',
+    notes: [
+      '!現行版本素材與文案綁定特定壽星，換活動須整份抽換',
+      'Spark 同時連線上限 100，排行榜只能開一份',
+      '玩家端不佔持久連線，人數不受上限影響',
+      '安全規則已上線，清除資料需密碼'
+    ]
+  },
+  {
+    name: 'Mario Runner',
+    tagline: '二段跳躲水管吃金幣，六十秒插旗結算',
+    color: '#4BA3F5',
+    type: '跑酷躲避',
+    player: 'https://kuyainfo.github.io/mario-coin-game/mario_runner.html',
+    links: [
+      { label: '排行榜', url: 'https://kuyainfo.github.io/mario-coin-game/mario_leaderboard.html' }
+    ],
+    tech: 'Firebase RTDB（新加坡區，專案名稱待補）',
+    notes: [
+      '!開發紀錄停在 v5.4 標示待推，須確認線上是哪一版',
+      '結算城堡可掛客戶 LOGO',
+      '後台有全體停止鍵，可強制結算',
+      'Line 內建瀏覽器實機驗證尚未完成'
+    ]
+  },
+  {
+    name: '多巴胺節奏',
+    tagline: '四軌音符反應，Fever 時間分數翻倍',
+    color: '#A66BFF',
+    type: '音遊型反應',
+    player: 'https://kuyainfo.github.io/dopamine-game/',
+    links: [],
+    tech: '純前端單檔，無後端',
+    notes: [
+      '無分數上傳，做不了全場排名，需排名要另外接',
+      '無音樂，現場吵雜環境仍可玩'
+    ]
+  },
+  {
+    name: '預測投票',
+    tagline: '觀眾預測名次，現場逐一揭曉結果',
+    color: '#4CC79B',
+    type: '投票 × 揭曉',
+    player: 'https://kuyainfo.github.io/vote-system/predict_vote.html',
+    links: [
+      { group: '預測分支', label: '投影端', url: 'https://kuyainfo.github.io/vote-system/predict_screen.html' },
+      { group: '預測分支', label: '後台', url: 'https://kuyainfo.github.io/vote-system/predict_admin.html' },
+      { group: '揭曉分支', label: '控制器', url: 'https://kuyainfo.github.io/vote-system/result_control.html' },
+      { group: '揭曉分支', label: '投影端', url: 'https://kuyainfo.github.io/vote-system/result_screen.html' },
+      { group: '揭曉分支', label: '金額輸入', url: 'https://kuyainfo.github.io/vote-system/result_admin.html' }
+    ],
+    tech: 'Firebase RTDB kuya-candy-game',
+    notes: [
+      '!控制器為平板專用，網址不可流出給觀眾',
+      '預測分支：觀眾投票端 + 投影端 + 後台',
+      '揭曉分支：控制器 + 投影端 + 金額輸入，僅工作人員使用',
+      '題目與名單需依每場活動重設'
+    ]
+  },
+  {
+    name: '探索圖鑑',
+    tagline: '拍照解任務，集滿解鎖獎勵',
+    color: '#E8734A',
+    type: '實體闖關 × 圖鑑收集',
+    player: '',
+    links: [],
+    tech: 'Google Apps Script 上傳 + Firebase 審核狀態（架構討論中）',
+    notes: [
+      '對應 2026-10-17 百濟烏來場',
+      '尚有兩項架構決策未定：非阻斷式審核、帳號建置方式'
+    ]
+  }
+];
+
+const UNLOCK_CODE = 'kuya2026';
+</script>
+
+<style>
+:root{
+  --ink:#0D101A;
+  --panel:#161B2A;
+  --panel-hi:#1D2337;
+  --rule:#2A3149;
+  --amber:#F0A830;
+  --text:#E8EBF4;
+  --muted:#8992AB;
+  --dim:#666F8A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--text);
+  font-family:'Noto Sans TC',-apple-system,'Microsoft JhengHei',sans-serif;
+  font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
+  padding:0 20px 90px;
+}
+.mono{font-family:'IBM Plex Mono','Courier New',monospace}
+.wrap{max-width:1140px;margin:0 auto}
+
+header{padding:56px 0 30px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--rule);margin-bottom:32px}
+h1{font-size:clamp(30px,4.4vw,46px);font-weight:900;letter-spacing:.06em;line-height:1.15}
+h1 span{display:block;font-size:.32em;font-weight:500;letter-spacing:.34em;color:var(--amber);margin-bottom:10px}
+.count{color:var(--muted);font-size:13.5px;margin-top:10px;letter-spacing:.04em}
+
+.lock{
+  display:flex;align-items:center;gap:10px;background:var(--panel);
+  border:1px solid var(--rule);border-radius:999px;padding:9px 17px;cursor:pointer;
+  color:var(--muted);font-size:13px;letter-spacing:.08em;
+  font-family:'IBM Plex Mono',monospace;transition:border-color .18s,color .18s;
+}
+.lock:hover{border-color:var(--amber);color:var(--text)}
+.lock:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.lock .dot{width:6px;height:6px;border-radius:50%;background:var(--dim)}
+body.internal .lock{border-color:var(--amber);color:var(--amber)}
+body.internal .lock .dot{background:var(--amber);box-shadow:0 0 9px var(--amber)}
+
+/* ── 卡片 ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+.card{
+  position:relative;background:var(--panel);border:1px solid var(--rule);
+  border-radius:14px;display:flex;flex-direction:column;overflow:hidden;
+  transition:transform .22s,border-color .22s,box-shadow .22s;
+}
+.card::before{
+  content:'';position:absolute;inset:0 0 auto 0;height:4px;
+  background:linear-gradient(90deg,var(--ac),transparent 88%);
+}
+.card::after{
+  content:'';position:absolute;top:-70px;right:-70px;width:190px;height:190px;
+  border-radius:50%;background:var(--ac);opacity:.11;filter:blur(46px);pointer-events:none;
+  transition:opacity .22s;
+}
+.card:hover{transform:translateY(-3px);border-color:var(--ac);box-shadow:0 14px 34px -18px var(--ac)}
+.card:hover::after{opacity:.2}
+.card-top{padding:26px 24px 22px;position:relative;z-index:1}
+.card h2{font-size:26px;font-weight:900;letter-spacing:.02em;line-height:1.25}
+.card h2 em{font-style:normal;color:var(--ac)}
+.tagline{color:var(--muted);font-size:14px;margin-top:8px}
+.type{
+  margin-top:18px;display:inline-block;font-size:12.5px;letter-spacing:.04em;
+  color:var(--ac);border:1px solid var(--ac);border-radius:999px;padding:3px 13px;opacity:.85;
+}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.btn{
+  border:1px solid var(--ac);background:none;color:var(--ac);
+  font:inherit;font-size:13.5px;font-weight:500;padding:7px 16px;border-radius:999px;
+  cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+  transition:background .16s,color .16s;
+}
+.btn:hover{background:var(--ac);color:#0D101A}
+.btn:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.btn.solid{background:var(--ac);color:#0D101A;font-weight:700}
+.btn.solid:hover{filter:brightness(1.13)}
+.btn.ghost{border-color:var(--rule);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--ac);background:none;color:var(--ac)}
+.nolink{color:var(--dim);font-size:13px;margin-top:22px;font-family:'IBM Plex Mono',monospace}
+
+/* ── 內部層 ── */
+.inner{display:none;background:var(--panel-hi);border-top:1px solid var(--rule);padding:18px 24px 22px;position:relative;z-index:1}
+body.internal .inner{display:block}
+.inner h3{font-size:11px;letter-spacing:.2em;color:var(--ac);font-weight:500;font-family:'IBM Plex Mono',monospace;margin-bottom:12px}
+.links{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:15px}
+.lgroup{margin-bottom:13px}
+.lgroup>span{display:block;font-size:11px;letter-spacing:.14em;color:var(--dim);font-family:'IBM Plex Mono',monospace;margin-bottom:7px}
+.lgroup .links{margin-bottom:0}
+.linkrow{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.linkrow a,.linkrow button{
+  background:none;border:none;color:var(--text);font:inherit;font-size:12.5px;
+  padding:5px 13px;cursor:pointer;text-decoration:none;
+  font-family:'IBM Plex Mono',monospace;transition:background .15s;
+}
+.linkrow a:hover,.linkrow button:hover{background:var(--rule)}
+.linkrow button{border-left:1px solid var(--rule);color:var(--muted);padding:5px 10px}
+.linkrow a:focus-visible,.linkrow button:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
+.tech{font-size:12.5px;color:var(--muted);margin-bottom:14px;word-break:break-word;font-family:'IBM Plex Mono',monospace}
+.notes{list-style:none;display:grid;gap:7px}
+.notes li{font-size:13px;color:var(--muted);padding-left:15px;position:relative;line-height:1.6}
+.notes li::before{content:'';position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--dim)}
+.notes li.warn{color:var(--amber)}
+.notes li.warn::before{background:var(--amber);width:5px;height:5px;border-radius:50%;top:8px}
+
+/* ── 現場備忘 ── */
+.memo{display:none;margin-top:46px;border:1px solid var(--rule);border-radius:14px;padding:28px 26px;background:var(--panel)}
+body.internal .memo{display:block}
+.memo h3{font-size:11px;letter-spacing:.2em;color:var(--amber);font-family:'IBM Plex Mono',monospace;font-weight:500;margin-bottom:16px}
+.memo ul{list-style:none;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.memo li{font-size:13.5px;color:var(--muted);padding-left:16px;position:relative}
+.memo li::before{content:'';position:absolute;left:0;top:11px;width:6px;height:1px;background:var(--amber)}
+.memo b{color:var(--text);font-weight:500}
+
+/* ── QR 彈窗 ── */
+#qrModal{
+  position:fixed;inset:0;background:rgba(6,8,14,.86);display:none;
+  align-items:center;justify-content:center;padding:24px;z-index:50;
+}
+#qrModal.show{display:flex}
+.qrbox{
+  background:var(--panel);border:1px solid var(--rule);border-top:4px solid var(--ac);
+  border-radius:14px;padding:28px;max-width:340px;width:100%;text-align:center;
+}
+.qrbox h4{font-size:20px;font-weight:900;margin-bottom:4px}
+.qrbox .u{font-size:11.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace;word-break:break-all;margin-bottom:18px}
+.qrbox .img{background:#fff;border-radius:10px;padding:12px;display:inline-block;line-height:0}
+.qrbox .img svg{width:236px;height:236px;display:block}
+.qrbox .close{margin-top:20px;width:100%;justify-content:center}
+
+#toast{
+  position:fixed;left:50%;bottom:38px;transform:translate(-50%,14px);
+  background:var(--text);color:var(--ink);padding:9px 20px;border-radius:999px;
+  font-size:13.5px;font-weight:700;opacity:0;pointer-events:none;transition:.22s;z-index:60;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:560px){
+  header{padding:36px 0 24px}
+  .card-top,.inner{padding-left:20px;padding-right:20px}
+  .qrbox .img svg{width:200px;height:200px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1><span>KUYA</span>遊戲總覽</h1>
+      <p class="count" id="count"></p>
+    </div>
+    <button class="lock" id="lock"><span class="dot"></span><span id="lockText">對外模式</span></button>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <section class="memo">
+    <h3>現場共通備忘</h3>
+    <ul>
+      <li><b>更新版本後要換 QR</b>　推上 GitHub 不等於玩家玩得到，QR 指向的網址要一起改</li>
+      <li><b>活動前清空測試資料</b>　開排行榜頁執行清除，確認歸零</li>
+      <li><b>工作人員裝置吃到舊版</b>　網址後面加 <span class="mono">?v=2</span> 強制重抓</li>
+      <li><b>GitHub Pages 有延遲</b>　推送後約 1–2 分鐘生效，先看到 404 屬正常</li>
+      <li><b>排行榜只開一份</b>　多處同時開會佔用連線數</li>
+      <li><b>投影主機備 4G 熱點</b>　斷網時排行榜會靜止不報錯</li>
+    </ul>
+  </section>
+
+</div>
+
+<div id="qrModal" role="dialog" aria-modal="true" aria-label="玩家端 QR Code">
+  <div class="qrbox" id="qrbox">
+    <h4 id="qrName"></h4>
+    <p class="u" id="qrUrl"></p>
+    <div class="img" id="qrImg"></div>
+    <button class="btn close" id="qrClose">關閉</button>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+/* 極簡 QR 產生器：Byte mode、EC Level M、Version 1–10 */
+var QR = (function () {
+  var EXP = new Array(512), LOG = new Array(256);
+  (function () {
+    var x = 1;
+    for (var i = 0; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11d; }
+    for (var i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  })();
+  function gmul(a, b) { return (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]]; }
+  function rsGen(n) {
+    var g = [1];
+    for (var i = 0; i < n; i++) {
+      var ng = new Array(g.length + 1).fill(0);
+      for (var j = 0; j < g.length; j++) { ng[j] ^= g[j]; ng[j + 1] ^= gmul(g[j], EXP[i]); }
+      g = ng;
+    }
+    return g;
+  }
+  function rsEnc(data, n) {
+    var g = rsGen(n), res = data.concat(new Array(n).fill(0));
+    for (var i = 0; i < data.length; i++) {
+      var c = res[i];
+      if (c !== 0) for (var j = 0; j < g.length; j++) res[i + j] ^= gmul(g[j], c);
+    }
+    return res.slice(data.length);
+  }
+
+  // [ecPerBlock, g1Blocks, g1Data, g2Blocks, g2Data]  (EC Level M, v1–10)
+  var RS = {
+    1:[10,1,16,0,0], 2:[16,1,28,0,0], 3:[26,1,44,0,0], 4:[18,2,32,0,0], 5:[24,2,43,0,0],
+    6:[16,4,27,0,0], 7:[18,4,31,0,0], 8:[22,2,38,2,39], 9:[22,3,36,2,37], 10:[26,4,43,1,44]
+  };
+  var ALIGN = {
+    1:[], 2:[6,18], 3:[6,22], 4:[6,26], 5:[6,30],
+    6:[6,34], 7:[6,22,38], 8:[6,24,42], 9:[6,26,46], 10:[6,28,50]
+  };
+
+  function utf8(str) {
+    var out = [], s = unescape(encodeURIComponent(str));
+    for (var i = 0; i < s.length; i++) out.push(s.charCodeAt(i));
+    return out;
+  }
+
+  function pickVersion(len) {
+    for (var v = 1; v <= 10; v++) {
+      var r = RS[v], total = r[1] * r[2] + r[3] * r[4];
+      var cci = v <= 9 ? 8 : 16;
+      if (total * 8 >= 4 + cci + len * 8) return v;
+    }
+    throw new Error('資料過長，超出 Version 10 容量');
+  }
+
+  function buildCodewords(bytes, version) {
+    var r = RS[version], ecLen = r[0];
+    var totalData = r[1] * r[2] + r[3] * r[4];
+    var cci = version <= 9 ? 8 : 16;
+    var bits = [];
+    function put(val, n) { for (var i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); }
+    put(4, 4); put(bytes.length, cci);
+    for (var i = 0; i < bytes.length; i++) put(bytes[i], 8);
+    var cap = totalData * 8;
+    for (var i = 0; i < 4 && bits.length < cap; i++) bits.push(0);
+    while (bits.length % 8 !== 0) bits.push(0);
+    var data = [];
+    for (var i = 0; i < bits.length; i += 8) {
+      var b = 0; for (var j = 0; j < 8; j++) b = (b << 1) | bits[i + j];
+      data.push(b);
+    }
+    var pad = [0xEC, 0x11], k = 0;
+    while (data.length < totalData) data.push(pad[k++ % 2]);
+
+    var blocks = [], pos = 0;
+    for (var i = 0; i < r[1]; i++) { blocks.push(data.slice(pos, pos + r[2])); pos += r[2]; }
+    for (var i = 0; i < r[3]; i++) { blocks.push(data.slice(pos, pos + r[4])); pos += r[4]; }
+    var ecs = blocks.map(function (b) { return rsEnc(b, ecLen); });
+
+    var out = [], maxD = Math.max.apply(null, blocks.map(function (b) { return b.length; }));
+    for (var i = 0; i < maxD; i++) for (var j = 0; j < blocks.length; j++) if (i < blocks[j].length) out.push(blocks[j][i]);
+    for (var i = 0; i < ecLen; i++) for (var j = 0; j < ecs.length; j++) out.push(ecs[j][i]);
+    return out;
+  }
+
+  function bchFormat(d) {
+    var v = d << 10;
+    for (var i = 14; i >= 10; i--) if ((v >> i) & 1) v ^= 0x537 << (i - 10);
+    return ((d << 10) | v) ^ 0x5412;
+  }
+  function bchVersion(v) {
+    var x = v << 12;
+    for (var i = 17; i >= 12; i--) if ((x >> i) & 1) x ^= 0x1f25 << (i - 12);
+    return (v << 12) | x;
+  }
+
+  function build(version, codewords, mask) {
+    var size = version * 4 + 17;
+    var m = [], fn = [];
+    for (var i = 0; i < size; i++) { m.push(new Array(size).fill(0)); fn.push(new Array(size).fill(0)); }
+    function set(r, c, v) { m[r][c] = v; fn[r][c] = 1; }
+
+    // finder + separator
+    [[0, 0], [0, size - 7], [size - 7, 0]].forEach(function (p) {
+      for (var r = -1; r <= 7; r++) for (var c = -1; c <= 7; c++) {
+        var rr = p[0] + r, cc = p[1] + c;
+        if (rr < 0 || cc < 0 || rr >= size || cc >= size) continue;
+        var on = (r >= 0 && r <= 6 && (c === 0 || c === 6)) ||
+                 (c >= 0 && c <= 6 && (r === 0 || r === 6)) ||
+                 (r >= 2 && r <= 4 && c >= 2 && c <= 4);
+        set(rr, cc, on ? 1 : 0);
+      }
+    });
+    // timing
+    for (var i = 8; i < size - 8; i++) { set(6, i, i % 2 === 0 ? 1 : 0); set(i, 6, i % 2 === 0 ? 1 : 0); }
+    // alignment
+    var ac = ALIGN[version];
+    for (var i = 0; i < ac.length; i++) for (var j = 0; j < ac.length; j++) {
+      var r = ac[i], c = ac[j];
+      if ((r <= 8 && c <= 8) || (r <= 8 && c >= size - 9) || (r >= size - 9 && c <= 8)) continue;
+      for (var dr = -2; dr <= 2; dr++) for (var dc = -2; dc <= 2; dc++)
+        set(r + dr, c + dc, (Math.max(Math.abs(dr), Math.abs(dc)) !== 1) ? 1 : 0);
+    }
+    // reserve format areas
+    for (var i = 0; i <= 8; i++) { if (i !== 6) { set(8, i, 0); set(i, 8, 0); } }
+    for (var i = 0; i < 8; i++) { set(8, size - 1 - i, 0); set(size - 1 - i, 8, 0); }
+    // dark module（必須在格式資訊保留區之後設定，否則會被覆蓋成 0）
+    set(size - 8, 8, 1);
+    // version info
+    if (version >= 7) {
+      var vb = bchVersion(version);
+      for (var i = 0; i < 18; i++) {
+        var bit = (vb >> i) & 1, a = Math.floor(i / 3), b = i % 3;
+        set(size - 11 + b, a, bit); set(a, size - 11 + b, bit);
+      }
+    }
+
+    // data placement
+    var bitIdx = 0, dir = -1, row = size - 1;
+    for (var col = size - 1; col > 0; col -= 2) {
+      if (col === 6) col--;
+      while (true) {
+        for (var k = 0; k < 2; k++) {
+          var c = col - k;
+          if (!fn[row][c]) {
+            var bit = 0;
+            if (bitIdx < codewords.length * 8) bit = (codewords[bitIdx >> 3] >> (7 - (bitIdx & 7))) & 1;
+            bitIdx++;
+            if (maskFn(mask, row, c)) bit ^= 1;
+            m[row][c] = bit;
+          }
+        }
+        row += dir;
+        if (row < 0 || row >= size) { row -= dir; dir = -dir; break; }
+      }
+    }
+
+    // format info
+    var fb = bchFormat((0 << 3) | mask); // Level M = 00
+    for (var i = 0; i < 15; i++) {
+      var bit = (fb >> i) & 1;
+      if (i < 6) m[i][8] = bit;
+      else if (i < 8) m[i + 1][8] = bit;
+      else m[size - 15 + i][8] = bit;
+      if (i < 8) m[8][size - 1 - i] = bit;
+      else if (i < 9) m[8][15 - i] = bit;
+      else m[8][14 - i] = bit;
+    }
+    return m;
+  }
+
+  function maskFn(k, i, j) {
+    switch (k) {
+      case 0: return (i + j) % 2 === 0;
+      case 1: return i % 2 === 0;
+      case 2: return j % 3 === 0;
+      case 3: return (i + j) % 3 === 0;
+      case 4: return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0;
+      case 5: return (i * j) % 2 + (i * j) % 3 === 0;
+      case 6: return ((i * j) % 2 + (i * j) % 3) % 2 === 0;
+      case 7: return ((i + j) % 2 + (i * j) % 3) % 2 === 0;
+    }
+  }
+
+  function penalty(m) {
+    var n = m.length, p = 0;
+    for (var i = 0; i < n; i++) {
+      for (var t = 0; t < 2; t++) {
+        var run = 1;
+        for (var j = 1; j < n; j++) {
+          var a = t ? m[j][i] : m[i][j], b = t ? m[j - 1][i] : m[i][j - 1];
+          if (a === b) run++; else { if (run >= 5) p += 3 + (run - 5); run = 1; }
+        }
+        if (run >= 5) p += 3 + (run - 5);
+      }
+    }
+    for (var i = 0; i < n - 1; i++) for (var j = 0; j < n - 1; j++) {
+      var v = m[i][j];
+      if (v === m[i][j + 1] && v === m[i + 1][j] && v === m[i + 1][j + 1]) p += 3;
+    }
+    var pat1 = [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0], pat2 = [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1];
+    for (var i = 0; i < n; i++) for (var j = 0; j + 11 <= n; j++) {
+      var okR1 = true, okR2 = true, okC1 = true, okC2 = true;
+      for (var k = 0; k < 11; k++) {
+        if (m[i][j + k] !== pat1[k]) okR1 = false;
+        if (m[i][j + k] !== pat2[k]) okR2 = false;
+        if (m[j + k][i] !== pat1[k]) okC1 = false;
+        if (m[j + k][i] !== pat2[k]) okC2 = false;
+      }
+      if (okR1) p += 40; if (okR2) p += 40; if (okC1) p += 40; if (okC2) p += 40;
+    }
+    var dark = 0;
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) dark += m[i][j];
+    p += Math.floor(Math.abs(dark * 100 / (n * n) - 50) / 5) * 10;
+    return p;
+  }
+
+  function encode(text) {
+    var bytes = utf8(text), v = pickVersion(bytes.length), cw = buildCodewords(bytes, v);
+    var best = null, bestP = Infinity;
+    for (var k = 0; k < 8; k++) {
+      var m = build(v, cw, k), p = penalty(m);
+      if (p < bestP) { bestP = p; best = m; }
+    }
+    return best;
+  }
+
+  function toSVG(text, px) {
+    var m = encode(text), n = m.length, q = 4, total = n + q * 2, s = px / total, d = '';
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++)
+      if (m[i][j]) d += 'M' + ((j + q) * s) + ' ' + ((i + q) * s) + 'h' + s + 'v' + s + 'h' + (-s) + 'z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 ' + px + ' ' + px + '">' +
+           '<rect width="' + px + '" height="' + px + '" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+  }
+
+  return { encode: encode, toSVG: toSVG };
+})();
+
+</script>
+
+<script>
+const grid = document.getElementById('grid');
+const countEl = document.getElementById('count');
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render(){
+  countEl.textContent = `收錄 ${GAMES.length} 款`;
+
+  grid.innerHTML = GAMES.map((g, i) => {
+    const actions = g.player
+      ? `<div class="actions">
+           <a class="btn solid" href="${esc(g.player)}" target="_blank" rel="noopener">開啟玩家端</a>
+           <button class="btn ghost" data-copy="${esc(g.player)}">複製網址</button>
+           <button class="btn ghost" data-qr="${i}">QR</button>
+         </div>`
+      : `<p class="nolink">尚未部署</p>`;
+
+    const rowsOf = arr => `<div class="links">${arr.map(l => `
+        <span class="linkrow">
+          <a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>
+          <button data-copy="${esc(l.url)}" title="複製網址">複製</button>
+        </span>`).join('')}</div>`;
+
+    let backend = '';
+    if (g.links.length) {
+      const groups = [];
+      g.links.forEach(l => {
+        const key = l.group || '';
+        let hit = groups.find(x => x.key === key);
+        if (!hit) { hit = { key, items: [] }; groups.push(hit); }
+        hit.items.push(l);
+      });
+      backend = groups.map(gr => gr.key
+        ? `<div class="lgroup"><span>${esc(gr.key)}</span>${rowsOf(gr.items)}</div>`
+        : rowsOf(gr.items)
+      ).join('');
+    }
+
+    const notes = g.notes.map(n => {
+      const warn = n.startsWith('!');
+      return `<li class="${warn ? 'warn' : ''}">${esc(warn ? n.slice(1) : n)}</li>`;
+    }).join('');
+
+    return `
+    <article class="card" style="--ac:${esc(g.color)}">
+      <div class="card-top">
+        <h2>${esc(g.name)}<em>.</em></h2>
+        <p class="tagline">${esc(g.tagline)}</p>
+        <p class="type">${esc(g.type)}</p>
+        ${actions}
+      </div>
+      <div class="inner">
+        <h3>操作資訊</h3>
+        ${backend}
+        <p class="tech">${esc(g.tech)}</p>
+        <ul class="notes">${notes}</ul>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+/* 複製網址 ／ 開啟 QR */
+grid.addEventListener('click', e => {
+  const cp = e.target.closest('[data-copy]');
+  if (cp) { copy(cp.dataset.copy); return; }
+  const qr = e.target.closest('[data-qr]');
+  if (qr) openQR(GAMES[+qr.dataset.qr]);
+});
+
+function copy(text){
+  const done = () => toast('已複製網址');
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+  else fallback(text, done);
+}
+function fallback(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch(_) { toast('複製失敗，請手動選取'); }
+  document.body.removeChild(ta);
+}
+
+/* QR 彈窗 */
+const modal = document.getElementById('qrModal');
+function openQR(g){
+  document.getElementById('qrName').textContent = g.name;
+  document.getElementById('qrUrl').textContent = g.player;
+  document.getElementById('qrbox').style.setProperty('--ac', g.color);
+  try {
+    document.getElementById('qrImg').innerHTML = QR.toSVG(g.player, 236);
+  } catch (err) {
+    document.getElementById('qrImg').innerHTML = '<p style="color:#000;font-size:13px;padding:20px">QR 產生失敗：' + esc(err.message) + '</p>';
+  }
+  modal.classList.add('show');
+  document.getElementById('qrClose').focus();
+}
+function closeQR(){ modal.classList.remove('show'); }
+document.getElementById('qrClose').onclick = closeQR;
+modal.onclick = e => { if (e.target === modal) closeQR(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQR(); });
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+/* 模式切換：僅存在記憶體，重新整理即回到對外模式 */
+const lock = document.getElementById('lock');
+const lockText = document.getElementById('lockText');
+lock.onclick = () => {
+  if (document.body.classList.contains('internal')) {
+    document.body.classList.remove('internal');
+    lockText.textContent = '對外模式';
+    toast('已切回對外模式');
+    return;
+  }
+  const input = prompt('輸入密碼進入對內模式');
+  if (input === null) return;
+  if (input === UNLOCK_CODE) {
+    document.body.classList.add('internal');
+    lockText.textContent = '對內模式';
+    toast('已進入對內模式');
+  } else {
+    toast('密碼不正確');
+  }
+};
+
+render();
+</script>
+</body>
+</html>
