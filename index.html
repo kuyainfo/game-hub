@@ -22,8 +22,6 @@
    type      遊戲類型
    player    玩家端網址，對外模式也會顯示；留空代表尚未部署
    links     後台／控制端連結，僅對內模式顯示；加 group 可分區顯示
-   tech      技術一句話（僅對內模式顯示）
-   notes     提醒事項，開頭加 '!' 會標成警示色（僅對內模式顯示）
 ───────────────────────────────────── */
 const GAMES = [
   {
@@ -36,13 +34,6 @@ const GAMES = [
       { label: '行情主機', url: 'https://kuyainfo.github.io/stock-game/stock_market.html' },
       { label: '排行榜', url: 'https://kuyainfo.github.io/stock-game/stock_rank.html' }
     ],
-    tech: 'Firebase RTDB kuya-stock-game（Blaze / asia-southeast1）',
-    notes: [
-      '!資料庫規則 2026-08-20 到期，之後全面讀寫失敗，須先延長',
-      '尚未做正式安全規則，僅時效性開放',
-      '玩家端需持久連線，人數等同連線數',
-      'repo 內無 index.html，連結一律要帶完整檔名'
-    ]
   },
   {
     name: '糖果屋',
@@ -53,14 +44,6 @@ const GAMES = [
     links: [
       { label: '排行榜', url: 'https://kuyainfo.github.io/candy-game/candy_leaderboard.html' }
     ],
-    tech: 'Firebase RTDB kuya-candy-game（Spark）',
-    notes: [
-      '!現行版本素材與文案綁定特定壽星，換活動須整份抽換',
-      'Spark 同時連線上限 100，排行榜只能開一份',
-      '玩家端不佔持久連線，人數不受上限影響',
-      '安全規則已上線，清除資料需密碼',
-      '玩家端用無版號檔名，內容同 v4_21；repo 內另存 v4_20、v4_21 備援'
-    ]
   },
   {
     name: 'Mario Runner',
@@ -71,13 +54,6 @@ const GAMES = [
     links: [
       { label: '排行榜', url: 'https://kuyainfo.github.io/mario-coin-game/mario_leaderboard.html' }
     ],
-    tech: 'Firebase RTDB（新加坡區，專案名稱待補）',
-    notes: [
-      '!repo 根目錄的 index.html 是六月舊作 Mario Coin Quest，直接開資料夾網址會進錯遊戲',
-      '結算城堡可掛客戶 LOGO',
-      '後台有全體停止鍵，可強制結算',
-      'Line 內建瀏覽器實機驗證尚未完成'
-    ]
   },
   {
     name: '多巴胺節奏',
@@ -86,11 +62,6 @@ const GAMES = [
     type: '音遊型反應',
     player: 'https://kuyainfo.github.io/dopamine-game/',
     links: [],
-    tech: '純前端單檔，無後端',
-    notes: [
-      '無分數上傳，做不了全場排名，需排名要另外接',
-      '無音樂，現場吵雜環境仍可玩'
-    ]
   },
   {
     name: '預測投票',
@@ -101,17 +72,10 @@ const GAMES = [
     links: [
       { group: '預測分支', label: '投影端', url: 'https://kuyainfo.github.io/vote-system/predict_screen.html' },
       { group: '預測分支', label: '後台', url: 'https://kuyainfo.github.io/vote-system/predict_admin.html' },
-      { group: '揭曉分支', label: '控制器', url: 'https://kuyainfo.github.io/vote-system/result_control.html' },
-      { group: '揭曉分支', label: '投影端', url: 'https://kuyainfo.github.io/vote-system/result_screen.html' },
-      { group: '揭曉分支', label: '金額輸入', url: 'https://kuyainfo.github.io/vote-system/result_admin.html' }
+      { group: '揭曉分支・工作人員限定', label: '控制器', url: 'https://kuyainfo.github.io/vote-system/result_control.html' },
+      { group: '揭曉分支・工作人員限定', label: '投影端', url: 'https://kuyainfo.github.io/vote-system/result_screen.html' },
+      { group: '揭曉分支・工作人員限定', label: '金額輸入', url: 'https://kuyainfo.github.io/vote-system/result_admin.html' }
     ],
-    tech: 'Firebase RTDB kuya-candy-game',
-    notes: [
-      '!控制器為平板專用，網址不可流出給觀眾',
-      '預測分支：觀眾投票端 + 投影端 + 後台',
-      '揭曉分支：控制器 + 投影端 + 金額輸入，僅工作人員使用',
-      '題目與名單需依每場活動重設'
-    ]
   },
   {
     name: '探索圖鑑',
@@ -120,11 +84,6 @@ const GAMES = [
     type: '實體闖關 × 圖鑑收集',
     player: '',
     links: [],
-    tech: 'Google Apps Script 上傳 + Firebase 審核狀態（架構討論中）',
-    notes: [
-      '對應 2026-10-17 百濟烏來場',
-      '尚有兩項架構決策未定：非阻斷式審核、帳號建置方式'
-    ]
   }
 ];
 
@@ -219,6 +178,8 @@ body.internal .inner{display:block}
 .lgroup{margin-bottom:13px}
 .lgroup>span{display:block;font-size:11px;letter-spacing:.14em;color:var(--dim);font-family:'IBM Plex Mono',monospace;margin-bottom:7px}
 .lgroup .links{margin-bottom:0}
+.lgroup:last-child{margin-bottom:0}
+.inner .links:last-child{margin-bottom:0}
 .linkrow{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
 .linkrow a,.linkrow button{
   background:none;border:none;color:var(--text);font:inherit;font-size:12.5px;
@@ -228,12 +189,6 @@ body.internal .inner{display:block}
 .linkrow a:hover,.linkrow button:hover{background:var(--rule)}
 .linkrow button{border-left:1px solid var(--rule);color:var(--muted);padding:5px 10px}
 .linkrow a:focus-visible,.linkrow button:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
-.tech{font-size:12.5px;color:var(--muted);margin-bottom:14px;word-break:break-word;font-family:'IBM Plex Mono',monospace}
-.notes{list-style:none;display:grid;gap:7px}
-.notes li{font-size:13px;color:var(--muted);padding-left:15px;position:relative;line-height:1.6}
-.notes li::before{content:'';position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--dim)}
-.notes li.warn{color:var(--amber)}
-.notes li.warn::before{background:var(--amber);width:5px;height:5px;border-radius:50%;top:8px}
 
 /* ── 現場備忘 ── */
 .memo{display:none;margin-top:46px;border:1px solid var(--rule);border-radius:14px;padding:28px 26px;background:var(--panel)}
@@ -591,11 +546,6 @@ function render(){
       ).join('');
     }
 
-    const notes = g.notes.map(n => {
-      const warn = n.startsWith('!');
-      return `<li class="${warn ? 'warn' : ''}">${esc(warn ? n.slice(1) : n)}</li>`;
-    }).join('');
-
     return `
     <article class="card" style="--ac:${esc(g.color)}">
       <div class="card-top">
@@ -604,12 +554,7 @@ function render(){
         <p class="type">${esc(g.type)}</p>
         ${actions}
       </div>
-      <div class="inner">
-        <h3>操作資訊</h3>
-        ${backend}
-        <p class="tech">${esc(g.tech)}</p>
-        <ul class="notes">${notes}</ul>
-      </div>
+      ${backend ? `<div class="inner"><h3>操作資訊</h3>${backend}</div>` : ''}
     </article>`;
   }).join('');
 }
