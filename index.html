@@ -17,15 +17,18 @@
 <script>
 /* ── 遊戲清單 ─────────────────────────────
    name      遊戲名稱
+   category  分類，需對應下方 CATEGORIES 其中一個；頁面依 CATEGORIES 順序排列
    tagline   一句話定性（對外會顯示）
    color     卡片代表色，換一個色碼即可
    type      遊戲類型
    player    玩家端網址，對外模式也會顯示；留空代表尚未部署
+   status    （選填）沒有玩家端時顯示的文字，預設「尚未部署」
    links     後台／控制端連結，僅對內模式顯示；加 group 可分區顯示
 ───────────────────────────────────── */
 const GAMES = [
   {
     name: '股票大富翁',
+    category: '對戰策略',
     tagline: '模擬當沖，五回合結算總資產',
     color: '#F5A524',
     type: '交易策略 × 舞台互動',
@@ -37,6 +40,7 @@ const GAMES = [
   },
   {
     name: '糖果屋',
+    category: '反應休閒',
     tagline: '滑動連線消除，分數越高糖果屋越豪華',
     color: '#FF6FA5',
     type: '消除型',
@@ -47,6 +51,7 @@ const GAMES = [
   },
   {
     name: 'Mario Runner',
+    category: '反應休閒',
     tagline: '二段跳躲水管吃金幣，六十秒插旗結算',
     color: '#4BA3F5',
     type: '跑酷躲避',
@@ -57,6 +62,7 @@ const GAMES = [
   },
   {
     name: '多巴胺節奏',
+    category: '反應休閒',
     tagline: '四軌音符反應，Fever 時間分數翻倍',
     color: '#A66BFF',
     type: '音遊型反應',
@@ -64,29 +70,78 @@ const GAMES = [
     links: [],
   },
   {
-    name: '預測投票',
-    tagline: '觀眾預測名次，現場逐一揭曉結果',
-    color: '#4CC79B',
-    type: '投票 × 揭曉',
-    player: 'https://kuyainfo.github.io/vote-system/predict_vote.html',
+    name: '咚咔！太鼓挑戰',
+    category: '反應休閒',
+    tagline: '咚咔雙鼓跟著節奏敲，連擊衝進祭典 Fever',
+    color: '#E5484D',
+    type: '音遊型反應 × 和風',
+    player: 'https://kuyainfo.github.io/dopamine-game/taiko/',
+    links: [],
+  },
+  {
+    name: '轟炸大作戰',
+    category: '對戰策略',
+    tagline: '紅綠兩隊 5v5，手機操控戰機互相擊落',
+    color: '#7FD13B',
+    type: '團隊對戰',
+    player: 'https://kuyainfo.github.io/star-war/fighter_game.html',
     links: [
-      { group: '預測分支', label: '投影端', url: 'https://kuyainfo.github.io/vote-system/predict_screen.html' },
-      { group: '預測分支', label: '後台', url: 'https://kuyainfo.github.io/vote-system/predict_admin.html' },
-      { group: '揭曉分支・工作人員限定', label: '投影・前三名', url: 'https://kuyainfo.github.io/vote-system/result_screen.html' },
-      { group: '揭曉分支・工作人員限定', label: '投影・最佳潛力獎', url: 'https://kuyainfo.github.io/vote-system/result_potential.html' },
-      { group: '揭曉分支・工作人員限定', label: '控制器（平板）', url: 'https://kuyainfo.github.io/vote-system/result_control.html' },
-      { group: '揭曉分支・工作人員限定', label: '後台輸入金額', url: 'https://kuyainfo.github.io/vote-system/result_admin.html' }
+      { label: '後台・投影＋開局', url: 'https://kuyainfo.github.io/star-war/fighter_admin.html' }
+    ],
+  },
+  {
+    name: '大亨錢包',
+    category: '對戰策略',
+    tagline: '報到領開辦金，憑錢包下注賭局、兌換獎品',
+    color: '#E6C35C',
+    type: '電子錢包 × 賭局互動',
+    player: 'https://kuyainfo.github.io/Monopoly/tycoon_wallet_v1_0.html',
+    links: [
+      { label: '後台', url: 'https://kuyainfo.github.io/Monopoly/tycoon_admin_v1_0.html' },
+      { label: '排行榜', url: 'https://kuyainfo.github.io/Monopoly/tycoon_leaderboard.html' }
+    ],
+  },
+  {
+    name: '頒獎揭曉',
+    category: '大螢幕揭曉',
+    tagline: '前三名依序升台，大螢幕現場揭曉',
+    color: '#4CC79B',
+    type: '頒獎 × 投影',
+    player: '',
+    status: '無玩家端・工作人員操作',
+    links: [
+      { group: '工作人員限定', label: '投影・前三名', url: 'https://kuyainfo.github.io/vote-system/result_screen.html' },
+      { group: '工作人員限定', label: '控制器（平板）', url: 'https://kuyainfo.github.io/vote-system/result_control.html' },
+      { group: '工作人員限定', label: '後台輸入金額', url: 'https://kuyainfo.github.io/vote-system/result_admin.html' }
     ],
   },
   {
     name: '探索圖鑑',
-    tagline: '拍照解任務，集滿解鎖獎勵',
+    category: '實體闖關',
+    tagline: '沿途拍照解任務，每人一本圖鑑，集滿換獎',
     color: '#E8734A',
     type: '實體闖關 × 圖鑑收集',
+    player: 'https://kuyainfo.github.io/field-guide/',
+    links: [
+      { label: '後台・審核與兌換', url: 'https://kuyainfo.github.io/field-guide/admin.html' }
+    ],
+  },
+  {
+    name: '千面嘉年華',
+    category: '大螢幕揭曉',
+    tagline: '上傳一張自拍，千人拼成一張威尼斯面具',
+    color: '#1FB5C9',
+    type: '迎賓互動 × 大螢幕揭曉',
     player: '',
     links: [],
   }
 ];
+
+/* 分類順序：頁面依此排列；要調整分類順序或新增分類改這裡 */
+const CATEGORIES = ['反應休閒', '對戰策略', '大螢幕揭曉', '實體闖關'];
+
+/* 分區標題：改成 true 就會每個分類一區、上方加標題 */
+const SHOW_SECTIONS = true;
 
 const UNLOCK_CODE = 'kuya2026';
 </script>
@@ -128,6 +183,12 @@ h1 span{display:block;font-size:.32em;font-weight:500;letter-spacing:.34em;color
 .lock .dot{width:6px;height:6px;border-radius:50%;background:var(--dim)}
 body.internal .lock{border-color:var(--amber);color:var(--amber)}
 body.internal .lock .dot{background:var(--amber);box-shadow:0 0 9px var(--amber)}
+
+/* ── 分區標題（SHOW_SECTIONS 開啟時使用）── */
+.sec{margin-bottom:40px}
+.sec:last-child{margin-bottom:0}
+.sec-title{font-size:15px;font-weight:700;letter-spacing:.14em;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sec-title span{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--muted);border:1px solid var(--rule);border-radius:999px;padding:0 9px}
 
 /* ── 卡片 ── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
@@ -517,14 +578,14 @@ function esc(s){
 function render(){
   countEl.textContent = `收錄 ${GAMES.length} 款`;
 
-  grid.innerHTML = GAMES.map((g, i) => {
+  const cardOf = (g, i) => {
     const actions = g.player
       ? `<div class="actions">
            <a class="btn solid" href="${esc(g.player)}" target="_blank" rel="noopener">開啟玩家端</a>
            <button class="btn ghost" data-copy="${esc(g.player)}">複製網址</button>
            <button class="btn ghost" data-qr="${i}">QR</button>
          </div>`
-      : `<p class="nolink">尚未部署</p>`;
+      : `<p class="nolink">${esc(g.status || '尚未部署')}</p>`;
 
     const rowsOf = arr => `<div class="links">${arr.map(l => `
         <span class="linkrow">
@@ -557,6 +618,23 @@ function render(){
       </div>
       ${backend ? `<div class="inner"><h3>操作資訊</h3>${backend}</div>` : ''}
     </article>`;
+  };
+
+  const rank = g => { const k = CATEGORIES.indexOf(g.category); return k < 0 ? CATEGORIES.length : k; };
+  const order = GAMES.map((g, i) => i).sort((x, y) => rank(GAMES[x]) - rank(GAMES[y]) || x - y);
+
+  if (!SHOW_SECTIONS) {
+    grid.className = 'grid';
+    grid.innerHTML = order.map(i => cardOf(GAMES[i], i)).join('');
+    return;
+  }
+  grid.className = '';
+  const names = CATEGORIES.concat(['其他']);
+  grid.innerHTML = names.map((c, k) => {
+    const ids = order.filter(i => rank(GAMES[i]) === k);
+    if (!ids.length) return '';
+    return `<section class="sec"><h2 class="sec-title">${esc(c)}<span>${ids.length}</span></h2>
+      <div class="grid">${ids.map(i => cardOf(GAMES[i], i)).join('')}</div></section>`;
   }).join('');
 }
 
